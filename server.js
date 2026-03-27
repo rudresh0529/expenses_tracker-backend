@@ -13,7 +13,7 @@ const client = new MongoClient(process.env.MONGO_URI);
 
 let db;
 
-// 🔥 CONNECT DB
+// CONNECT DB
 async function connectDB() {
   try {
     await client.connect();
@@ -25,17 +25,17 @@ async function connectDB() {
 }
 connectDB();
 
-// 🏠 ROOT
+// ROOT
 app.get("/", (req, res) => {
   res.send("API Running 🚀");
 });
 
 
 // ==========================
-// 📊 EXPENSES ROUTES
+// 📊 EXPENSES
 // ==========================
 
-// ➕ ADD
+// ADD
 app.post("/api/expenses", async (req, res) => {
   try {
     const { title, amount, category, createdAt } = req.body;
@@ -53,11 +53,10 @@ app.post("/api/expenses", async (req, res) => {
   }
 });
 
-// 📥 GET ALL
+// GET
 app.get("/api/expenses", async (req, res) => {
   try {
-    const data = await db
-      .collection("expenses")
+    const data = await db.collection("expenses")
       .find()
       .sort({ createdAt: -1 })
       .toArray();
@@ -68,7 +67,7 @@ app.get("/api/expenses", async (req, res) => {
   }
 });
 
-// ✏️ UPDATE
+// UPDATE
 app.put("/api/expenses/:id", async (req, res) => {
   try {
     await db.collection("expenses").updateOne(
@@ -82,7 +81,7 @@ app.put("/api/expenses/:id", async (req, res) => {
   }
 });
 
-// ❌ DELETE
+// DELETE
 app.delete("/api/expenses/:id", async (req, res) => {
   try {
     await db.collection("expenses").deleteOne({
@@ -97,10 +96,10 @@ app.delete("/api/expenses/:id", async (req, res) => {
 
 
 // ==========================
-// 💰 SAVINGS ROUTES
+// 💰 SAVINGS
 // ==========================
 
-// ➕ ADD SAVING
+// ADD
 app.post("/api/savings", async (req, res) => {
   try {
     const { amount, createdAt } = req.body;
@@ -116,16 +115,42 @@ app.post("/api/savings", async (req, res) => {
   }
 });
 
-// 📥 GET SAVINGS
+// GET
 app.get("/api/savings", async (req, res) => {
   try {
-    const data = await db
-      .collection("savings")
+    const data = await db.collection("savings")
       .find()
       .sort({ createdAt: -1 })
       .toArray();
 
     res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// UPDATE
+app.put("/api/savings/:id", async (req, res) => {
+  try {
+    await db.collection("savings").updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: req.body }
+    );
+
+    res.json({ message: "Updated" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE
+app.delete("/api/savings/:id", async (req, res) => {
+  try {
+    await db.collection("savings").deleteOne({
+      _id: new ObjectId(req.params.id)
+    });
+
+    res.json({ message: "Deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
